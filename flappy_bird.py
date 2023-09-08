@@ -28,7 +28,7 @@ class Player:
     coordinate = 0
     color = 'white'
 
-    def __init__(self, x: int, y: int, color):
+    def __init__(self, x: int, y: int, color='white'):
         self.coordinate = pg.Vector2(x,y)
         self.color = color
 
@@ -37,10 +37,7 @@ class Player:
         is_between_y1_and_y2 = self.coordinate.y+10 > obstacle.y1 and self.coordinate.y < obstacle.y2
         
         if is_between_x1_and_x2 and is_between_y1_and_y2:
-            self.color='red'
             return True
-        
-        self.color='white'
         return False
 
 pg.init()
@@ -48,7 +45,6 @@ running = True
 screen = pg.display.set_mode((1280, 720))
 clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
-bird = Player(500, screen.get_height()/2, 'white')
 
 # constantes
 gravity = 0.4
@@ -61,6 +57,8 @@ y_center = screen.get_height()/2
 velocity = 0
 x = 0
 y = rd.choice(range(0,450))
+
+bird = Player(500, y_center)
 
 def new_game():
     global y
