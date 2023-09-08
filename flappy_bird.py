@@ -56,7 +56,7 @@ clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
 
 #variáveis
-velocity = 0
+bird_velocity = 0
 x = 0
 y = rd.choice(range(0,450))
 
@@ -66,26 +66,26 @@ def new_game():
     global y
     global x
     global bird
-    global velocity
+    global bird_velocity
     y = rd.choice(range(0,450))
     x = 0
     bird.coordinate.y = y_center
-    velocity = 0
+    bird_velocity = 0
 
 while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
 
+    bird_velocity += gravity
+    bird.coordinate.y += bird_velocity
+
     screen.fill('black')
     pg.draw.circle(screen, bird.color, bird.coordinate, bird_radius)
 
-    velocity += gravity
-    bird.coordinate.y += velocity
-
     keys = pg.key.get_pressed()
     if keys[pg.K_SPACE]:
-        velocity = jump
+        bird_velocity = jump
 
     x -= 5
 
