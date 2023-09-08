@@ -2,6 +2,13 @@ import pygame as pg
 import time
 import random as rd
 
+# constantes
+gravity = 0.9
+jump = -10
+hole_size = 200
+obstacle_width = 80
+bird_radius = 30
+
 class Obstacle:
     rect=0
     lefttop=0
@@ -33,8 +40,9 @@ class Player:
         self.color = color
 
     def touching(self, obstacle:Obstacle):
-        is_between_x1_and_x2 = self.coordinate.x+15 > obstacle.x1 and self.coordinate.x < obstacle.x2
-        is_between_y1_and_y2 = self.coordinate.y+10 > obstacle.y1 and self.coordinate.y < obstacle.y2
+        half_bird_radius = bird_radius / 2
+        is_between_x1_and_x2 = self.coordinate.x + half_bird_radius > obstacle.x1 and self.coordinate.x < obstacle.x2
+        is_between_y1_and_y2 = self.coordinate.y + half_bird_radius > obstacle.y1 and self.coordinate.y < obstacle.y2
         
         if is_between_x1_and_x2 and is_between_y1_and_y2:
             return True
@@ -42,23 +50,17 @@ class Player:
 
 pg.init()
 running = True
-screen = pg.display.set_mode((1280, 720))
+screen = pg.display.set_mode((620, 720))
+y_center = screen.get_height()/2
 clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
-
-# constantes
-gravity = 0.4
-jump = -10
-hole_size = 200
-width = 50
-y_center = screen.get_height()/2
 
 #variáveis
 velocity = 0
 x = 0
 y = rd.choice(range(0,450))
 
-bird = Player(500, y_center)
+bird = Player(310, y_center)
 
 def new_game():
     global y
@@ -76,7 +78,7 @@ while running:
             running = False
 
     screen.fill('black')
-    pg.draw.circle(screen, bird.color, bird.coordinate, 20)
+    pg.draw.circle(screen, bird.color, bird.coordinate, bird_radius)
 
     velocity += gravity
     bird.coordinate.y += velocity
@@ -88,8 +90,8 @@ while running:
     x -= 5
 
     obstacles = [
-        Obstacle(screen.get_width() + x, 0, width, y),
-        Obstacle(screen.get_width() + x, y + hole_size, width, screen.get_height())
+        Obstacle(screen.get_width() + x, 0, obstacle_width, y),
+        Obstacle(screen.get_width() + x, y + hole_size, obstacle_width, screen.get_height())
     ]
     pg.draw.rect(screen, 'purple', obstacles[0].rect, 10)
     pg.draw.rect(screen, 'purple', obstacles[1].rect, 10)
