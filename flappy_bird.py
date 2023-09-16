@@ -68,56 +68,61 @@ clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
 
 #variáveis
-x = 0
-y = rd.choice(range(0,450))
+obstacle_x = 0
+obstacle_y = rd.choice(range(0,450))
 
-bird = Player(310, y_center, 30)
+player = Player(310, y_center, 30)
 
 def new_game():
-    global y
-    global x
-    global bird
-    y = rd.choice(range(0,450))
-    x = 0
-    bird.coordinate.y = y_center
-    bird.velocity = 0
+    time.sleep(1)
+
+    global obstacle_y
+    global obstacle_x
+    global player
+    obstacle_y = rd.choice(range(0,450))
+    obstacle_x = 0
+    player.coordinate.y = y_center
+    player.velocity = 0
 
 while running:
+    # events
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
 
-    bird.velocity += gravity
-    bird.coordinate.y += bird.velocity
-    x -= 5
+    # gravity effects
+    player.velocity += gravity
+    player.coordinate.y += player.velocity
 
+    # keys
     keys = pg.key.get_pressed()
     if keys[pg.K_SPACE]:
-        bird.velocity = jump
+        player.velocity = jump
 
+    # draws
+    obstacle_x -= 5
     obstacles = [
-        Obstacle(screen.get_width() + x, 0, obstacle_width, y),
-        Obstacle(screen.get_width() + x, y + hole_size, obstacle_width, screen.get_height())
+        Obstacle(screen.get_width() + obstacle_x, 0, obstacle_width, obstacle_y),
+        Obstacle(screen.get_width() + obstacle_x, obstacle_y + hole_size, obstacle_width, screen.get_height())
     ]
-
     screen.fill('black')
-    bird.draw(screen)
+    player.draw(screen)
     obstacles[0].draw(screen)
     obstacles[1].draw(screen)
     pg.display.flip()
 
+    # bird death
     for obstacle in obstacles:
-        if bird.touching(obstacle):
-            time.sleep(1)
+        if player.touching(obstacle):
             new_game()
 
-    if bird.coordinate.y < 0 or bird.coordinate.y > 730:
-        time.sleep(1)
+    if player.coordinate.y < 0 or player.coordinate.y > 730:
         new_game()
 
+    # obstacle in front again
     if obstacles[0].x2 < 0:
-        y = rd.choice(range(0,450))
-        x = 0
+        obstacle_y = rd.choice(range(0,450))
+        obstacle_x = 0
 
     clock.tick(60)
 
