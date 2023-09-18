@@ -3,7 +3,7 @@ import time
 import random as rd
 
 # constantes
-gravity = 0.9
+gravity = 0.98
 jump = -10
 
 class Obstacle:
@@ -13,7 +13,7 @@ class Obstacle:
     width = 0
     hole_size = 0
 
-    def __init__(self, screen_x:float, screen_y:float, obstacle_width=80, hole_size=200, color='purple'):
+    def __init__(self, screen_x:float, screen_y:float, obstacle_width=80, hole_size=200, color='darkviolet'):
         self.color = color
         self.hole_size = hole_size
         self.width = obstacle_width
@@ -23,6 +23,12 @@ class Obstacle:
     def addto_x(self, value:float):
         self.superior_pillar.left += value
         self.inferior_pillar.left += value
+
+    def get_x(self):
+        return self.get_pillars()[0].x
+    
+    def get_y(self):
+        return self.get_pillars()[0].y
 
     def set_x(self, value:int):
         self.superior_pillar.left = value
@@ -45,11 +51,11 @@ class Obstacle:
 
 class Player:
     coordinate = 0
-    color = 'white'
+    color = ''
     radius = 0
     velocity = 0
 
-    def __init__(self, x: int, y: int, radius:int, color='white'):
+    def __init__(self, x: int, y: int, radius:int, color='gray90'):
         self.coordinate = pg.Vector2(x,y)
         self.color = color
         self.radius = radius
@@ -72,6 +78,7 @@ screen = pg.display.set_mode((620, 720))
 screen_y_center = screen.get_height()/2
 clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
+pg.display.set_icon(pg.image.load('files/flappy.ico'))
 
 player = Player(310, screen_y_center, 30)
 obstacles = [
@@ -79,11 +86,19 @@ obstacles = [
     Obstacle(screen.get_width(), screen.get_height())
 ]
 
+score = 0
+font = pg.font.Font('files/Grand9K Pixel.ttf', 100)
+text = font.render(str(score), True, 'gray50', None)
+TextRect = text.get_rect()
+TextRect.center = (screen.get_width() / 2, 200)
+
 def new_game(sleep_one_sec=True):
     if sleep_one_sec: time.sleep(1)
 
     global obstacles
     global player
+    global score
+    score = 0
     player.coordinate.y = screen_y_center
     player.velocity = 0
     obstacles[0].randomize_in_right(screen.get_width())
@@ -110,6 +125,9 @@ while running:
 
     # draws
     screen.fill('black')
+    text = font.render(str(score), True, 'gray50', None)
+    screen.blit(text, TextRect)
+    
     player.draw(screen)
     obstacles[0].draw(screen)
     obstacles[1].draw(screen)
@@ -119,6 +137,9 @@ while running:
     for obstacle in obstacles:
         if player.touching(obstacle):
             new_game()
+        
+        if player.coordinate.x == obstacle.get_x():
+            score += 1
 
     if player.coordinate.y < 0 or player.coordinate.y > 730:
         new_game()
