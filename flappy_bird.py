@@ -54,24 +54,27 @@ class Player:
     color = ''
     radius = 0
     velocity = 0
+    img = 0
+    collision = 0
 
-    def __init__(self, x: int, y: int, radius:int, color='gray90'):
+    def __init__(self, x: int, y: int):
         self.coordinate = pg.Vector2(x,y)
-        self.color = color
-        self.radius = radius
+        self.img = pg.image.load('files/mug.png')
+        self.collision = pg.Rect(self.coordinate.x - self.img.get_width()/2 + 10, self.coordinate.y - self.img.get_height()/2, 58, 76)
         self.velocity = 0
 
     def touching(self, obstacle:Obstacle):
         for pillar in obstacle.get_pillars():
-            is_between_x1_and_x2 = self.coordinate.x + self.radius > pillar.left and self.coordinate.x - self.radius < pillar.right
-            is_between_y1_and_y2 = self.coordinate.y + self.radius > pillar.top and self.coordinate.y - self.radius < pillar.bottom
+            is_between_x1_and_x2 = self.coordinate.x + 29 > pillar.left and pillar.right > self.coordinate.x - 29
+            is_between_y1_and_y2 = self.coordinate.y + 38 > pillar.top and pillar.bottom > self.coordinate.y - 38
         
             if is_between_x1_and_x2 and is_between_y1_and_y2:
                 return True
         return False
     
     def draw(self, screen):
-        pg.draw.circle(screen, self.color, self.coordinate, self.radius)
+        screen.blit(self.img, pg.Vector2(self.coordinate.x - self.img.get_width()/2 - 8, self.coordinate.y - self.img.get_height()/2))
+        #pg.draw.rect(screen, 'yellow', self.collision, 2)
 
 pg.init()
 screen = pg.display.set_mode((620, 720))
@@ -80,7 +83,7 @@ clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
 pg.display.set_icon(pg.image.load('files/flappy.ico'))
 
-player = Player(310, screen_y_center, 30)
+player = Player(310, screen_y_center)
 obstacles = [
     Obstacle(screen.get_width(), screen.get_height()),
     Obstacle(screen.get_width(), screen.get_height())
