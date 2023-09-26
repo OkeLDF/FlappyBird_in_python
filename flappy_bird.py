@@ -79,6 +79,7 @@ class Player:
 pg.init()
 screen = pg.display.set_mode((620, 720))
 screen_y_center = screen.get_height()/2
+screen_x_center = screen.get_width()/2
 clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
 pg.display.set_icon(pg.image.load('files/flappy.ico'))
@@ -93,15 +94,23 @@ score = 0
 font = pg.font.Font('files/Grand9K Pixel.ttf', 100)
 text = font.render(str(score), True, 'gray50', None)
 TextRect = text.get_rect()
-TextRect.center = (screen.get_width() / 2, 200)
+TextRect.center = (screen_x_center, 200)
 
-def new_game(sleep_one_sec=True):
-    if sleep_one_sec: time.sleep(1)
+def new_game(pause=True):
+    if pause: time.sleep(1)
 
     global obstacles
     global player
     global score
+    global text
+    global TextRect
+    global screen_x_center
+
     score = 0
+    text = font.render(str(score), True, 'gray50', None)
+    TextRect = text.get_rect()
+    TextRect.center = (screen_x_center, 200)
+    
     player.coordinate.y = screen_y_center
     player.velocity = 0
     obstacles[0].randomize_in_right(screen.get_width())
@@ -128,7 +137,6 @@ while running:
 
     # draws
     screen.fill('black')
-    text = font.render(str(score), True, 'gray50', None)
     screen.blit(text, TextRect)
     
     player.draw(screen)
@@ -140,9 +148,13 @@ while running:
     for obstacle in obstacles:
         if player.touching(obstacle):
             new_game()
+            #pass
         
         if player.coordinate.x == obstacle.get_x():
             score += 1
+            text = font.render(str(score), True, 'gray50', None)
+            TextRect = text.get_rect()
+            TextRect.center = (screen_x_center, 200)
 
     if player.coordinate.y < 0 or player.coordinate.y > 730:
         new_game()
