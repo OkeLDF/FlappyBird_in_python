@@ -52,7 +52,6 @@ class Obstacle:
 class Player:
     coordinate = 0
     color = ''
-    radius = 0
     velocity = 0
     img = 0
     collision = 0
@@ -76,22 +75,41 @@ class Player:
         screen.blit(self.img, pg.Vector2(self.coordinate.x - self.img.get_width()/2 - 8, self.coordinate.y - self.img.get_height()/2))
         #pg.draw.rect(screen, 'yellow', self.collision, 2)
 
+class Coffee:
+    radius=0
+    coordinate=0
+    velocity=0
+
+    def __init__(self, x:int, y:int):
+        self.radius = 10
+        self.coordinate = pg.Vector2(x, y)
+    
+    def draw(self, screen):
+        pg.draw.circle(screen, 'orange', self.coordinate, self.radius)
+
 pg.init()
 screen = pg.display.set_mode((620, 720))
 screen_y_center = screen.get_height()/2
 screen_x_center = screen.get_width()/2
 clock = pg.time.Clock()
 pg.display.set_caption("Flappy Bird in Python")
-pg.display.set_icon(pg.image.load('files/flappy.ico'))
+pg.display.set_icon(pg.image.load('./files/flappy.ico'))
 
 player = Player(310, screen_y_center)
 obstacles = [
     Obstacle(screen.get_width(), screen.get_height()),
     Obstacle(screen.get_width(), screen.get_height())
 ]
+coffees = [
+    Coffee(300, screen_y_center),
+    Coffee(305, screen_y_center),
+    Coffee(310, screen_y_center),
+    Coffee(315, screen_y_center),
+    Coffee(320, screen_y_center)
+]
 
 score = 0
-font = pg.font.Font('files/Grand9K Pixel.ttf', 100)
+font = pg.font.Font('./files/Grand9K Pixel.ttf', 100)
 text = font.render(str(score), True, 'gray50', None)
 TextRect = text.get_rect()
 TextRect.center = (screen_x_center, 200)
@@ -111,6 +129,9 @@ def new_game(pause=True):
     TextRect = text.get_rect()
     TextRect.center = (screen_x_center, 200)
     
+    for coffee in coffees:
+        coffee.coordinate.y = screen_y_center + rd.choice(range(-10, 10))
+        coffee.velocity = 0
     player.coordinate.y = screen_y_center
     player.velocity = 0
     obstacles[0].randomize_in_right(screen.get_width())
@@ -127,8 +148,17 @@ while running:
     # gravity effects and obstacle movement
     player.velocity += gravity
     player.coordinate.y += player.velocity
+
     for obstacle in obstacles:
         obstacle.addto_x(-5)
+
+    for coffee in coffees:
+        coffee.coordinate.y += coffee.velocity
+        if player.velocity < 0 and coffee.coordinate.y > player.coordinate.y:
+            coffee.velocity = player.velocity
+            continue
+        coffee.velocity += gravity - 0.2
+        
 
     # keys
     keys = pg.key.get_pressed()
@@ -139,6 +169,8 @@ while running:
     screen.fill('black')
     screen.blit(text, TextRect)
     
+    for coffee in coffees:
+        coffee.draw(screen)
     player.draw(screen)
     obstacles[0].draw(screen)
     obstacles[1].draw(screen)
