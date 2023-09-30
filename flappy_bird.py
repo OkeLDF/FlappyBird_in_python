@@ -13,7 +13,7 @@ class Obstacle:
     width = 0
     hole_size = 0
 
-    def __init__(self, screen_x:float, screen_y:float, obstacle_width=80, hole_size=200, color='darkviolet'):
+    def __init__(self, screen_x:float, screen_y:float, obstacle_width=80, hole_size=200, color='blue'):
         self.color = color
         self.hole_size = hole_size
         self.width = obstacle_width
@@ -85,7 +85,7 @@ class Coffee:
         self.coordinate = pg.Vector2(x, y)
     
     def draw(self, screen):
-        pg.draw.circle(screen, 'orange', self.coordinate, self.radius)
+        pg.draw.circle(screen, 'chocolate4', self.coordinate, self.radius)
 
 pg.init()
 screen = pg.display.set_mode((620, 720))
@@ -102,20 +102,22 @@ obstacles = [
 ]
 coffees = [
     Coffee(300, screen_y_center),
-    Coffee(305, screen_y_center),
-    Coffee(310, screen_y_center),
+    Coffee(303, screen_y_center),
+    Coffee(306, screen_y_center),
+    Coffee(309, screen_y_center),
+    Coffee(312, screen_y_center),
     Coffee(315, screen_y_center),
-    Coffee(320, screen_y_center)
+    Coffee(318, screen_y_center),
+    Coffee(321, screen_y_center)
 ]
 
 score = 0
 font = pg.font.Font('./files/Grand9K Pixel.ttf', 100)
 text = font.render(str(score), True, 'gray50', None)
 TextRect = text.get_rect()
-TextRect.center = (screen_x_center, 200)
 
 def new_game(pause=True):
-    if pause: time.sleep(1)
+    if pause: time.sleep(0.5)
 
     global obstacles
     global player
@@ -127,7 +129,8 @@ def new_game(pause=True):
     score = 0
     text = font.render(str(score), True, 'gray50', None)
     TextRect = text.get_rect()
-    TextRect.center = (screen_x_center, 200)
+    #TextRect.center = (screen_x_center, 200)
+    TextRect.topleft = (50, 25)
     
     for coffee in coffees:
         coffee.coordinate.y = screen_y_center + rd.choice(range(-10, 10))
@@ -139,11 +142,18 @@ def new_game(pause=True):
 
 new_game(False)
 running = True
+game_over = False
 while running:
     # events
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
+    
+    keys = pg.key.get_pressed()
+    if keys[pg.K_SPACE] and game_over:
+        game_over = False
+
+    if game_over: continue
 
     # gravity effects and obstacle movement
     player.velocity += gravity
@@ -154,31 +164,29 @@ while running:
 
     for coffee in coffees:
         coffee.coordinate.y += coffee.velocity
-        if player.velocity < 0 and coffee.coordinate.y > player.coordinate.y:
+        if player.velocity < 0 and coffee.coordinate.y > player.coordinate.y - 18:
             coffee.velocity = player.velocity
             continue
         coffee.velocity += gravity - 0.2
-        
 
-    # keys
-    keys = pg.key.get_pressed()
+    # jump
     if keys[pg.K_SPACE]:
         player.velocity = jump
 
     # draws
     screen.fill('black')
-    screen.blit(text, TextRect)
-    
     for coffee in coffees:
         coffee.draw(screen)
     player.draw(screen)
     obstacles[0].draw(screen)
     obstacles[1].draw(screen)
+    screen.blit(text, TextRect)
     pg.display.flip()
 
     # player's death
     for obstacle in obstacles:
         if player.touching(obstacle):
+            game_over = True
             new_game()
             #pass
         
@@ -186,9 +194,11 @@ while running:
             score += 1
             text = font.render(str(score), True, 'gray50', None)
             TextRect = text.get_rect()
-            TextRect.center = (screen_x_center, 200)
+            #TextRect.center = (screen_x_center, 200)
+            TextRect.topleft = (50, 25)
 
     if player.coordinate.y < 0 or player.coordinate.y > 730:
+        game_over = True
         new_game()
 
     # obstacle in front again
