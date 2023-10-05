@@ -80,8 +80,8 @@ class Coffee:
     coordinate=0
     velocity=0
 
-    def __init__(self, x:int, y:int):
-        self.radius = 10
+    def __init__(self, x:int, y:int, radius=10):
+        self.radius = radius
         self.coordinate = pg.Vector2(x, y)
     
     def draw(self, screen):
@@ -112,9 +112,14 @@ coffees = [
 ]
 
 score = 0
-font = pg.font.Font('./files/Grand9K Pixel.ttf', 100)
-text = font.render(str(score), True, 'gray50', None)
-TextRect = text.get_rect()
+score_font = pg.font.Font('./files/Grand9K Pixel.ttf', 100)
+score_text = score_font.render(str(score), True, 'gray50', None)
+score_text_Rect = score_text.get_rect()
+
+header_font = pg.font.Font('./files/Grand9K Pixel.ttf', 150)
+header_text = score_font.render("Game Over", True, 'yellow3', None)
+header_text_Rect = header_text.get_rect()
+header_text_Rect.center = (screen_x_center, screen_y_center-50)
 
 def new_game(pause=True):
     if pause: time.sleep(0.5)
@@ -122,19 +127,20 @@ def new_game(pause=True):
     global obstacles
     global player
     global score
-    global text
-    global TextRect
+    global score_text
+    global score_text_Rect
     global screen_x_center
 
     score = 0
-    text = font.render(str(score), True, 'gray50', None)
-    TextRect = text.get_rect()
+    score_text = score_font.render(str(score), True, 'gray50', None)
+    score_text_Rect = score_text.get_rect()
     #TextRect.center = (screen_x_center, 200)
-    TextRect.topleft = (50, 25)
+    score_text_Rect.topleft = (50, 25)
     
     for coffee in coffees:
         coffee.coordinate.y = screen_y_center + rd.choice(range(-10, 10))
         coffee.velocity = 0
+        coffee.radius = rd.choice(range(4,13))
     player.coordinate.y = screen_y_center
     player.velocity = 0
     obstacles[0].randomize_in_right(screen.get_width())
@@ -143,6 +149,7 @@ def new_game(pause=True):
 new_game(False)
 running = True
 game_over = False
+
 while running:
     # events
     for event in pg.event.get():
@@ -150,10 +157,12 @@ while running:
             running = False
     
     keys = pg.key.get_pressed()
-    if keys[pg.K_SPACE] and game_over:
-        game_over = False
 
-    if game_over: continue
+    if game_over:
+        screen.blit(header_text, header_text_Rect)
+        pg.display.flip()
+        if (keys[pg.K_UP] or keys[pg.K_SPACE]): game_over = False
+        continue
 
     # gravity effects and obstacle movement
     player.velocity += gravity
@@ -170,7 +179,7 @@ while running:
         coffee.velocity += gravity - 0.2
 
     # jump
-    if keys[pg.K_SPACE]:
+    if keys[pg.K_UP] or keys[pg.K_SPACE]:
         player.velocity = jump
 
     # draws
@@ -180,7 +189,7 @@ while running:
     player.draw(screen)
     obstacles[0].draw(screen)
     obstacles[1].draw(screen)
-    screen.blit(text, TextRect)
+    screen.blit(score_text, score_text_Rect)
     pg.display.flip()
 
     # player's death
@@ -192,10 +201,10 @@ while running:
         
         if player.coordinate.x == obstacle.get_x():
             score += 1
-            text = font.render(str(score), True, 'gray50', None)
-            TextRect = text.get_rect()
+            score_text = score_font.render(str(score), True, 'gray50', None)
+            score_text_Rect = score_text.get_rect()
             #TextRect.center = (screen_x_center, 200)
-            TextRect.topleft = (50, 25)
+            score_text_Rect.topleft = (50, 25)
 
     if player.coordinate.y < 0 or player.coordinate.y > 730:
         game_over = True
