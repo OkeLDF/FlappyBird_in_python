@@ -13,7 +13,7 @@ class Obstacle:
     width = 0
     hole_size = 0
 
-    def __init__(self, screen_x:float, screen_y:float, obstacle_width=80, hole_size=200, color='blue'):
+    def __init__(self, screen_x:float, screen_y:float, obstacle_width=80, hole_size=200, color='darkorchid4'):
         self.color = color
         self.hole_size = hole_size
         self.width = obstacle_width
@@ -79,45 +79,53 @@ class Coffee:
     radius=0
     coordinate=0
     velocity=0
+    color=''
 
     def __init__(self, x:int, y:int, radius=10):
         self.radius = radius
         self.coordinate = pg.Vector2(x, y)
+        self.color = pg.color.Color(rd.choice(range(130, 150)), rd.choice(range(60, 70)), rd.choice(range(10, 20)))
     
     def draw(self, screen):
-        pg.draw.circle(screen, 'chocolate4', self.coordinate, self.radius)
+        pg.draw.circle(screen, self.color, self.coordinate, self.radius)
 
 pg.init()
+
 screen = pg.display.set_mode((620, 720))
 screen_y_center = screen.get_height()/2
 screen_x_center = screen.get_width()/2
+
+background = pg.image.load("./files/cosmos.png")
+background_x = 0
+
 clock = pg.time.Clock()
+
 pg.display.set_caption("Flappy Bird in Python")
 pg.display.set_icon(pg.image.load('./files/flappy.ico'))
 
-player = Player(310, screen_y_center)
+player = Player(screen_x_center, screen_y_center)
 obstacles = [
     Obstacle(screen.get_width(), screen.get_height()),
     Obstacle(screen.get_width(), screen.get_height())
 ]
 coffees = [
-    Coffee(300, screen_y_center),
-    Coffee(303, screen_y_center),
-    Coffee(306, screen_y_center),
-    Coffee(309, screen_y_center),
-    Coffee(312, screen_y_center),
-    Coffee(315, screen_y_center),
-    Coffee(318, screen_y_center),
-    Coffee(321, screen_y_center)
+    Coffee(player.coordinate.x - 10, screen_y_center),
+    Coffee(player.coordinate.x - 7, screen_y_center),
+    Coffee(player.coordinate.x - 4, screen_y_center),
+    Coffee(player.coordinate.x - 1, screen_y_center),
+    Coffee(player.coordinate.x + 2, screen_y_center),
+    Coffee(player.coordinate.x + 5, screen_y_center),
+    Coffee(player.coordinate.x + 8, screen_y_center),
+    Coffee(player.coordinate.x + 11, screen_y_center)
 ]
 
 score = 0
 score_font = pg.font.Font('./files/Grand9K Pixel.ttf', 100)
-score_text = score_font.render(str(score), True, 'gray50', None)
+score_text = score_font.render(str(score), True, 'gray80', None)
 score_text_Rect = score_text.get_rect()
 
 header_font = pg.font.Font('./files/Grand9K Pixel.ttf', 150)
-header_text = score_font.render("Game Over", True, 'yellow3', None)
+header_text = score_font.render("Game Over", True, 'goldenrod2', None)
 header_text_Rect = header_text.get_rect()
 header_text_Rect.center = (screen_x_center, screen_y_center-50)
 
@@ -130,9 +138,11 @@ def new_game(pause=True):
     global score_text
     global score_text_Rect
     global screen_x_center
+    global background_x
 
+    background_x = 0
     score = 0
-    score_text = score_font.render(str(score), True, 'gray50', None)
+    score_text = score_font.render(str(score), True, 'gray80', None)
     score_text_Rect = score_text.get_rect()
     #TextRect.center = (screen_x_center, 200)
     score_text_Rect.topleft = (50, 25)
@@ -164,9 +174,10 @@ while running:
         if (keys[pg.K_UP] or keys[pg.K_SPACE]): game_over = False
         continue
 
-    # gravity effects and obstacle movement
+    # gravity effects and movement
     player.velocity += gravity
     player.coordinate.y += player.velocity
+    background_x -= 0.1
 
     for obstacle in obstacles:
         obstacle.addto_x(-5)
@@ -176,14 +187,15 @@ while running:
         if player.velocity < 0 and coffee.coordinate.y > player.coordinate.y - 18:
             coffee.velocity = player.velocity
             continue
-        coffee.velocity += gravity - 0.2
+        coffee.velocity += gravity - 0.3
 
     # jump
     if keys[pg.K_UP] or keys[pg.K_SPACE]:
         player.velocity = jump
 
     # draws
-    screen.fill('black')
+    #screen.fill('black')
+    screen.blit(background, pg.Vector2(background_x, 0))
     for coffee in coffees:
         coffee.draw(screen)
     player.draw(screen)
@@ -201,7 +213,7 @@ while running:
         
         if player.coordinate.x == obstacle.get_x():
             score += 1
-            score_text = score_font.render(str(score), True, 'gray50', None)
+            score_text = score_font.render(str(score), True, 'gray80', None)
             score_text_Rect = score_text.get_rect()
             #TextRect.center = (screen_x_center, 200)
             score_text_Rect.topleft = (50, 25)
