@@ -7,11 +7,6 @@ gravity = 0.98
 jump = -10
 
 class Obstacle:
-    superior_pillar = 0
-    inferior_pillar = 0
-    color = ''
-    width = 0
-    hole_size = 0
 
     def __init__(self, screen_x:float, screen_y:float, obstacle_width=80, hole_size=200, color='darkorchid4'):
         self.color = color
@@ -50,11 +45,6 @@ class Obstacle:
         pg.draw.rect(screen, self.color, self.inferior_pillar, 10)
 
 class Player:
-    coordinate = 0
-    color = ''
-    velocity = 0
-    img = 0
-    collision = 0
 
     def __init__(self, x: int, y: int):
         self.coordinate = pg.Vector2(x,y)
@@ -76,10 +66,7 @@ class Player:
         #pg.draw.rect(screen, 'yellow', self.collision, 2)
 
 class Coffee:
-    radius=0
-    coordinate=0
     velocity=0
-    color=''
 
     def __init__(self, x:int, y:int, radius=10):
         self.radius = radius
